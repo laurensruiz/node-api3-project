@@ -21,13 +21,21 @@ router.get('/', (req, res, next) => {
 router.get('/:id', validateUserId, (req, res) => {
   // RETURN THE USER OBJECT
   // this needs a middleware to verify user id
-  console.log(req.user)
+  //console.log(req.user)
+  res.json(req.user)
 });
 
-router.post('/', validateUser, (req, res) => {
+router.post('/', validateUser, (req, res, next) => {
   // RETURN THE NEWLY CREATED USER OBJECT
   // this needs a middleware to check that the request body is valid
-  console.log(req.name)
+  //console.log(req.name)
+  //return object with name
+  User.insert({name: req.name})
+  .then(newUser => {
+    //throw new Error('ouvh!') //to test catch
+    res.status(201).json(newUser)
+  })
+  .catch(next) //shortcut same as calling err => {next(err)}
 });
 
 router.put('/:id', validateUserId, validateUser,(req, res) => {
