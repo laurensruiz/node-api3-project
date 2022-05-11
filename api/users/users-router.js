@@ -38,19 +38,40 @@ router.post('/', validateUser, (req, res, next) => {
   .catch(next) //shortcut same as calling err => {next(err)}
 });
 
-router.put('/:id', validateUserId, validateUser,(req, res) => {
+router.put('/:id', validateUserId, validateUser,(req, res, next) => {
   //http put :5000/api/users/1 name=foo
   // RETURN THE FRESHLY UPDATED USER OBJECT
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
-  console.log(req.user) //validate user ID
-  console.log(req.name) //validate user
+  // console.log(req.user) //validate user ID
+  // console.log(req.name) //validate user
+  User.update(req.params.id, {name: req.name})
+  .then( ()=> { //gives back number of changes if u check
+    return User.getById(req.params.id) // give us the id
+  })
+  .then(user =>{ //then with that id
+    res.json(user) // we put id in json
+  })
+  .catch(next)
+    //check the middleware how we called name thats hy we need to put it like this
+
 });
 
-router.delete('/:id', validateUserId, (req, res) => {
+router.delete('/:id', validateUserId, async (req, res, next) => {
   // RETURN THE FRESHLY DELETED USER OBJECT
   // this needs a middleware to verify user id
-  console.log(req.user)
+  // console.log(req.user)
+  // User.remove(req.params.id)
+  // .then(deletedUser => {
+  //   res.json(deletedUser)
+  // })
+  // .catch(next)
+  try{
+    await User.remove(req.params.id)
+    res.json(req.user)
+  } catch (err) {
+    next(err)
+  }
 });
 
 router.get('/:id/posts', validateUserId, (req, res) => {
